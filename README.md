@@ -114,4 +114,96 @@ public class ProduitController {
     }
 }
 
+-------complet
+Entité Produit.java
 
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "produits")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Produit {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "produit_seq")
+    @SequenceGenerator(name = "produit_seq", sequenceName = "produit_sequence", allocationSize = 1)
+    private Long id;
+
+    private String nom;
+    private double prix;
+    private int quantite;
+}
+
+✅ Utilisation de séquence PostgreSQL pour gérer l'auto-incrémentation.
+2.2. DTO ProduitDTO.java
+
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProduitDTO {
+    private String nom;
+    private double prix;
+    private int quantite;
+}
+
+✅ DTO utilisé pour transférer les données depuis Angular vers Spring Boot.
+2.3. Repository ProduitRepository.java
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ProduitRepository extends JpaRepository<Produit, Long> {
+}
+
+✅ Interface JPA pour les opérations en base.
+2.4. Service ProduitService.java
+
+import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class ProduitService {
+
+    private final ProduitRepository produitRepository;
+
+    public void enregistrerProduits(List<ProduitDTO> produitDTOs) {
+        List<Produit> produits = produitDTOs.stream()
+                .map(dto -> new Produit(null, dto.getNom(), dto.getPrix(), dto.getQuantite()))
+                .collect(Collectors.toList());
+
+        produitRepository.saveAll(produits);
+    }
+}
+
+✅ Utilisation de saveAll() pour l'insertion en masse.
+2.5. Contrôleur ProduitController.java
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/produits")
+@RequiredArgsConstructor
+public class ProduitController {
+
+    private final ProduitService produitService;
+
+    @PostMapping("/enregistrer")
+    public ResponseEntity<String> enregistrerProduits(@RequestBody List<ProduitDTO> produitsDTO) {
+        produitService.enregistrerProduits(produitsDTO);
+        return ResponseEntity.ok("Produits enregistrés avec succès !");
+    }
+}
