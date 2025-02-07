@@ -94,5 +94,24 @@ public class ProduitService {
         produitRepository.saveAll(produits);
     }
 }
-----
+----ProduitController.java
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/produits")
+@RequiredArgsConstructor
+public class ProduitController {
+
+    private final ProduitService produitService;
+
+    @PostMapping("/enregistrer")
+    public ResponseEntity<String> enregistrerProduits(@RequestBody List<ProduitDTO> produitsDTO) {
+        produitService.enregistrerProduits(produitsDTO);
+        return ResponseEntity.ok("Produits enregistrés avec succès !");
+    }
+}
+
 
